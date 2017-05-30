@@ -18,5 +18,6 @@ public class LevelController : MonoBehaviour
     {
         //При смерті кролика повертаємо на початкову позицію
         rabit.transform.position = this.startingPosition;
+       // rabit.removeHealth(1);
     }
 }
