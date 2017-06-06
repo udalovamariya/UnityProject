@@ -6,13 +6,13 @@ public class HeroRabit : MonoBehaviour
 {
     public float WaitTime = 2f;
     float to_Wait = 0f;
-    Vector3 targetScale = Vector3.one;
-    Vector3  scale_speed = Vector3.one;
-    public static HeroRabit current; 
+	public Vector3 targetScale = Vector3.one;
+    public Vector3 scale_speed = Vector3.one;
+    public static HeroRabit current;
     Transform heroParent = null;
     Rigidbody2D myBody = null;
     SpriteRenderer sr;
-    int health = 1;
+    public int health = 1;
     bool isGrounded = false;
     bool JumpActive = false;
     float JumpTime = 0f;
@@ -40,9 +40,9 @@ public class HeroRabit : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 from = this.transform.position + Vector3.up * 0.3f;
-        Vector3 to= this.transform.position + Vector3.down * 0.1f;
+        Vector3 to = this.transform.position + Vector3.down * 0.1f;
 
-        int layer_id = (1<< LayerMask.NameToLayer ("Ground"));
+        int layer_id = (1 << LayerMask.NameToLayer("Ground"));
 
         RaycastHit2D hit = Physics2D.Linecast(from, to, layer_id);
         if (hit)
@@ -65,7 +65,7 @@ public class HeroRabit : MonoBehaviour
             sr.flipX = true;
         else if (value > 0)
             sr.flipX = false;
-       
+
         Animator animator = GetComponent<Animator>();
         if (Mathf.Abs(value) > 0)
         {
@@ -75,10 +75,10 @@ public class HeroRabit : MonoBehaviour
         {
             animator.SetBool("run", false);
         }
-        
+
         Debug.DrawLine(from, to, Color.red);
 
-       
+
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             this.JumpActive = true;
@@ -102,7 +102,7 @@ public class HeroRabit : MonoBehaviour
                 this.JumpTime = 0;
             }
         }
-      
+
         if (this.isGrounded)
         {
             animator.SetBool("jump", false);
@@ -127,16 +127,16 @@ public class HeroRabit : MonoBehaviour
             //Ми в повітрі відліпаємо під платформи
             SetNewParent(this.transform, this.heroParent);
         }
-      //  this.transform.localScale = Vector3.SmoothDamp(this.transform.localScale, this.targetScale, ref scale_speed, -1.0f);
+        //  this.transform.localScale = Vector3.SmoothDamp(this.transform.localScale, this.targetScale, ref scale_speed, -1.0f);
 
-        if(animator.GetBool ("death"))
+        if (animator.GetBool("die"))
         {
             to_Wait -= Time.deltaTime;
             if (to_Wait <= 0)
             {
-                animator.SetBool("death", false);
+                animator.SetBool("die", false);
                 LevelController.current.onRabitDeath(this);
-                to_Wait = WaitTime; 
+                to_Wait = WaitTime;
             }
         }
     }
@@ -147,15 +147,15 @@ public class HeroRabit : MonoBehaviour
         current = this;
     }
 
-    bool isForMushRooms = false; 
+    public bool isForMushRooms = false;
 
     public void scaletwiceformushrooms()
     {
-        if(!isForMushRooms)
+        if (!isForMushRooms)
         {
             isForMushRooms = true;
-            transform.localScale += new Vector3(0.3f,0.3f,0.2f);
-        }   
+            transform.localScale += new Vector3(0.3f, 0.3f, 0.2f);
+        }
     }
     static void SetNewParent(Transform obj, Transform new_parent)
     {
@@ -183,7 +183,7 @@ public class HeroRabit : MonoBehaviour
     public void addHealth(int number)
     {
         this.health += number;
-        if(this.health<0)
+        if (this.health < 0)
         {
             this.health = 0;
         }
@@ -191,21 +191,22 @@ public class HeroRabit : MonoBehaviour
     }
     void onHealthChange()
     {
-        if(this.health == 1)
+        if (this.health == 1)
         {
             this.transform.localScale = Vector3.one;
-               }
-        else if(this.health == 2)
+        }
+        else if (this.health == 2)
         {
-            this.transform.localScale = Vector3.one*2;
+            this.transform.localScale = Vector3.one * 2;
         }
         else if (this.health == 0)
         {
             Animator animator = GetComponent<Animator>();
-            animator.SetBool("death", true);
-          
+            animator.SetBool("die", true);
+			//isForMushRooms = false;
+			health = 1;
         }
     }
-   
+
 
 }
