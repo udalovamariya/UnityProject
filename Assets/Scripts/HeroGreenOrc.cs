@@ -13,62 +13,15 @@ public class HeroGreenOrc : MonoBehaviour
     public float runSpeed = 2.5f;
     public float hitRange = 2f;
     public Vector3 destVector = Vector3.one;
+	protected const float DEATH_HEIGHT = 1;
+	protected float waitTime;
+	public Mode mode = Mode.GoToB;
+	protected Rigidbody2D body;
+	protected SpriteRenderer spriter;
+	protected Animator animator;
+	public Vector3 pointA;
+	public Vector3 pointB;
 
-    virtual protected void Start()
-    {
-        body = GetComponent<Rigidbody2D>();
-        spriter = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-        pointA = transform.position;
-        destVector.y = destVector.z = 0;
-        pointB = pointA + destVector;
-    }
-
-    virtual protected void FixedUpdate()
-    {
-        if (mode == Mode.Die) return;
-        Vector3 rabbitPosition = HeroRabit.current.transform.position;
-        Vector3 orcPosition = this.transform.position;
-
-        if ((rabbitPosition.x > pointA.x && rabbitPosition.x < pointB.x))/* ||
-      (rabbitPosition.x > pointB.x && rabbitPosition.x < pointA.x))*/
-            mode = Mode.Attack;
-        else if ((mode == Mode.GoToA || mode == Mode.Attack) && HasArrived(orcPosition, pointA))
-            mode = Mode.GoToB;
-        else if ((mode == Mode.GoToB || mode == Mode.Attack) && HasArrived(orcPosition, pointB))
-            mode = Mode.GoToA;
-        Run();
-        if (mode == Mode.Attack && IsCloseToRabit())
-        {
-            if (IsDirectlyUnderRabit())
-                mode = Mode.Die;
-            else if (((waitTime -= Time.deltaTime) <= .0f) && transform.position.y >= rabbitPosition.y)
-            {
-                BumpRabit();
-                waitTime = 0;
-            }
-        }
-        StartCoroutine(Die());
-    }
-
-    protected float getDirection()
-    {
-        Vector3 rabbitPosition = HeroRabit.current.transform.position;
-        Vector3 orcPosition = transform.position;
-        if (mode == Mode.Attack)
-        {
-            return orcPosition.x - rabbitPosition.x < -1 ? 1 :
-             orcPosition.x - rabbitPosition.x > 1 ? -1 : 0;
-        }
-        return mode == Mode.GoToA ? -1 : mode == Mode.GoToB ? 1 : 0;
-    }
-
-    protected bool HasArrived(Vector3 position, Vector3 target)
-    {
-        position.z = 0;
-        target.z = 0;
-        return Vector3.Distance(position, target) < 0.5f;
-    }
 
     protected void Run()
     {
@@ -136,13 +89,60 @@ public class HeroGreenOrc : MonoBehaviour
         }
     }
 
-	protected const float DEATH_HEIGHT = 1;
-	protected float waitTime;
-    public Mode mode = Mode.GoToB;
-	protected Rigidbody2D body;
-	protected SpriteRenderer spriter;
-	protected Animator animator;
-    public Vector3 pointA;
-    public Vector3 pointB;
+	virtual protected void Start()
+	{
+		body = GetComponent<Rigidbody2D>();
+		spriter = GetComponent<SpriteRenderer>();
+		animator = GetComponent<Animator>();
+		pointA = transform.position;
+		destVector.y = destVector.z = 0;
+		pointB = pointA + destVector;
+	}
+
+	virtual protected void FixedUpdate()
+	{
+		if (mode == Mode.Die) return;
+		Vector3 rabbitPosition = HeroRabit.current.transform.position;
+		Vector3 orcPosition = this.transform.position;
+
+		if ((rabbitPosition.x > pointA.x && rabbitPosition.x < pointB.x))/* ||
+      (rabbitPosition.x > pointB.x && rabbitPosition.x < pointA.x))*/
+			mode = Mode.Attack;
+		else if ((mode == Mode.GoToA || mode == Mode.Attack) && HasArrived(orcPosition, pointA))
+			mode = Mode.GoToB;
+		else if ((mode == Mode.GoToB || mode == Mode.Attack) && HasArrived(orcPosition, pointB))
+			mode = Mode.GoToA;
+		Run();
+		if (mode == Mode.Attack && IsCloseToRabit())
+		{
+			if (IsDirectlyUnderRabit())
+				mode = Mode.Die;
+			else if (((waitTime -= Time.deltaTime) <= .0f) && transform.position.y >= rabbitPosition.y)
+			{
+				BumpRabit();
+				waitTime = 0;
+			}
+		}
+		StartCoroutine(Die());
+	}
+
+	protected float getDirection()
+	{
+		Vector3 rabbitPosition = HeroRabit.current.transform.position;
+		Vector3 orcPosition = transform.position;
+		if (mode == Mode.Attack)
+		{
+			return orcPosition.x - rabbitPosition.x < -1 ? 1 :
+				orcPosition.x - rabbitPosition.x > 1 ? -1 : 0;
+		}
+		return mode == Mode.GoToA ? -1 : mode == Mode.GoToB ? 1 : 0;
+	}
+
+	protected bool HasArrived(Vector3 position, Vector3 target)
+	{
+		position.z = 0;
+		target.z = 0;
+		return Vector3.Distance(position, target) < 0.5f;
+	}
 
 }
