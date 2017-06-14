@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bombs : Collectable {
-	
-		protected override void OnRabitHit(HeroRabit rabit)
-		{
+public class Bombs : Collectable
+{
+
+    protected override void OnRabitHit(HeroRabit rabit)
+    {
         this.CollectedHide();
-        rabit.removeHealth(1);  
-		}
-	}
+        rabit.RemoveHealth(1);
+    }
+}

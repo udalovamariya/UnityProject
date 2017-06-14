@@ -2,41 +2,56 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Carrot : Collectable 
+public class Carrot : Collectable
 {
-	public void onRabbitEnter (HeroRabit rabit)
-	{
-		rabit.removeHealth (1);
-		this.CollectedHide ();
-	}
+    public Vector3 speed = new Vector3(2.0f, 0.0f, 0.0f);
+    private float direction = 1.0f;
+    public float lifeTime = 5.0f;
+    void Start()
+    {
+        StartCoroutine(destroyLater());
+    }
 
-	float my_direction = 0;
-	public float Speed = 2;
+    public void launch(float direction)
+    {
+        this.direction = direction;
+    }
 
-	public void launch(float direction) 
-	{
-		this.my_direction = direction;
+    IEnumerator destroyLater()
+    {
+        yield return new WaitForSeconds(lifeTime);
+        Destroy(this.gameObject);
 
-		if (direction < 0) 
-		{
-			this.GetComponent<SpriteRenderer> ().flipX = true;
-		}
-
-		StartCoroutine (destroyLater());
-	}
-
-	IEnumerator destroyLater() 
-	{
-		yield return new WaitForSeconds (3f);
-
-		Destroy(this.gameObject);
-	}
+    }
 
 
-	void Update () 
-	{
-		Vector3 pos = this.transform.position;
-		pos.x += Time.deltaTime * my_direction * Speed;
-		this.transform.position = pos;
-	}
+
+
+    public void FixedUpdate()
+    {
+        if (direction != 0)
+        {
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (direction < 0)
+            {
+                sr.flipX = true;
+
+            }
+            else if (direction > 0)
+            {
+                sr.flipX = false;
+            }
+
+            if (Mathf.Abs(direction) > 0)
+            {
+                this.transform.position += direction * speed * Time.deltaTime;
+            }
+        }
+    }
+
+    protected override void OnRabitHit(HeroRabit rabit)
+    {
+        this.CollectedHide();
+        rabit.RemoveHealth(1);
+    }
 }

@@ -29,3 +29,34 @@ F:\Practice_Masha\HungRab\Temp\bin\Debug\UnityEngine.VR.xml
 F:\Practice_Masha\HungRab\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
 F:\Practice_Masha\HungRab\obj\Debug\Assembly-CSharp.dll
 F:\Practice_Masha\HungRab\obj\Debug\Assembly-CSharp.pdb
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Assembly-CSharp.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Assembly-CSharp.pdb
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\nunit.framework.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEditor.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.Analytics.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.HoloLens.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.Networking.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.TestRunner.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.UI.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.VR.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Mono.Cecil.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Unity.SerializationLogic.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Unity.DataContract.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\ICSharpCode.NRefactory.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Unity.UNetWeaver.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Unity.CecilTools.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Mono.Cecil.Pdb.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\Mono.Cecil.Mdb.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEditor.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.UI.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.Networking.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.TestRunner.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\nunit.framework.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.Analytics.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.HoloLens.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\Temp\bin\Debug\UnityEngine.VR.xml
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\obj\Debug\Assembly-CSharp.dll
+C:\Users\MariyaUdalova\Desktop\HungRab new\HungRab\obj\Debug\Assembly-CSharp.pdb

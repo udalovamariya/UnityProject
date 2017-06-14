@@ -1,16 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Myshroom : Collectable
+﻿public class Myshroom : Collectable
 {
-	protected override void OnRabitHit(HeroRabit rabit)
+	protected override void OnRabitHit(HeroRabit rabbit)
 	{
-        if (rabit.health == 1)
+        if (rabbit.health == 1)
         {
-            rabit.addHealth(1);
-            HeroRabit.current.scaletwiceformushrooms();
+            rabbit.AddHealth(1);
+            HeroRabit.current.Scaletwiceformushrooms();
         }
-		this.CollectedHide();
+		CollectedHide();
 	}
 }

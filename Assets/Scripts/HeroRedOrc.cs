@@ -1,169 +1,243 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class HeroRedOrc : MonoBehaviour
 {
-	
-		float health = 1;
-		Carrot carrot = null;
-		public float speed = 1f;
-		public float runSpeed = 2.5f;
-		public float hitRange = 2f;
-		public Vector3 destVector = Vector3.one;
-		protected const float DEATH_HEIGHT = 1;
-		protected float waitTime;
-		public Mode mode = Mode.GoToB;
-		protected Rigidbody2D body;
-		protected SpriteRenderer spriter;
-		protected Animator animator;
-		public Vector3 pointA;
-		public Vector3 pointB;
+    #region Fields
 
-        public enum Mode
+    public Vector3 MoveBy = Vector3.one;
+    public float Speed = 2.0f;
+    public float SeeOn = 9.0f;
+    public float CarrotPeriod = 2.0f;
+    private float TimeBefore;
+
+    public AudioClip Sound = null;
+    private AudioSource Source = null;
+
+    private Rigidbody2D MyBody = null;
+
+    public enum Mode
+    {
+        GoToA,
+        GoToB,
+        StandartAttack,
+        CarrotAttack,
+        Die
+    }
+    public Mode CurrentMode = Mode.GoToB;
+
+    private Vector3 PointA;
+    private Vector3 PointB;
+
+    public GameObject PrefabCarrot;
+
+    #endregion
+
+    void Start()
+    {
+        MyBody = GetComponent<Rigidbody2D>();
+
+        TimeBefore = CarrotPeriod;
+        MoveBy.y = 0;
+        MoveBy.z = 0;
+
+        PointA = transform.position;
+        PointB = PointA + MoveBy;
+
+        Source = gameObject.AddComponent<AudioSource>();
+        Source.clip = Sound;
+    }
+    void FixedUpdate()
+    {
+        SetMode();
+        Run();
+        CarrotAttack();
+        StartCoroutine(Die());
+    }
+
+    #region Private methods
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (CurrentMode != Mode.Die)
         {
-        GoToA = 0, GoToB = 1, Attack = 2, Die = 3
+            HeroRabit rabbit = collision.gameObject.GetComponent<HeroRabit>();
+            if (rabbit != null)
+            {
+                Vector3 rabbitPosition = HeroRabit.current.transform.position;
+                Vector3 myPosition = transform.position;
+                CurrentMode = Mode.StandartAttack;
+
+                if (CurrentMode == Mode.StandartAttack && Mathf.Abs(rabbitPosition.y - myPosition.y) < 1.6f)
+                {
+                    StartCoroutine(Attack(rabbit));
+                }
+                else if (CurrentMode == Mode.StandartAttack && Mathf.Abs(rabbitPosition.y - myPosition.y) > 1.6f)
+                {
+                    CurrentMode = Mode.Die;
+                }
+            }
         }
+    }
 
-    protected void Run()
-	{
-		float direction = this.getDirection();
-	
-		if (direction != .0f)
-			spriter.flipX = direction > 0;
-		if (Mathf.Abs(direction) > 0)
-		{
-			Vector2 vel = body.velocity;
-			if (mode == Mode.Attack) vel.x = direction * runSpeed;
-			else vel.x = direction * speed;
-			body.velocity = vel;
-		}
-		if (mode == Mode.Attack)
-		{
-			animator.SetBool("run", Mathf.Abs(direction) > 0);
-		}
-		else
-		{
-			animator.SetBool("run", !(Mathf.Abs(direction) > 0));
-		}
-	}
-	
-	
-	protected bool IsCloseToRabit()
-	{
-		Vector3 rp = HeroRabit.current.transform.position;
-		Vector3 op = this.transform.position;
-		if (!HeroRabit.current.isForMushRooms)
-			return Mathf.Abs(transform.position.x - HeroRabit.current.transform.position.x) < 2.5f;
-	
-		return Mathf.Abs(transform.position.x - HeroRabit.current.transform.position.x) < 3.5f;
-	}
-	
-	
-	protected bool IsDirectlyUnderRabit()
-	{
-		return Mathf.Abs(HeroRabit.current.transform.position.x - transform.position.x) < 1.0f
-			&& Mathf.Abs(HeroRabit.current.transform.position.y - this.transform.position.y) < 2.5f;
-	}
-	
-	protected void BumpRabit()
-	{
-		animator.SetBool("attack", true);
-		waitTime = 0.5f;
-		LevelController.current.onRabitDeath(HeroRabit.current);
-		animator.SetBool("attack", false);
-	}
-	
-	protected IEnumerator Die()
-	{
-		if (mode == Mode.Die)
-		{
-			animator.SetBool("death", true);
-			GetComponent<BoxCollider2D>().isTrigger = true;
-			if (body) Destroy(body);
-	
-			yield return new WaitForSeconds(1f);
-			animator.SetBool("death", false);
-			Destroy(this.gameObject);
-		}
-	}
+    private void SetMode()
+    {
+        Vector3 rabbitPosition = HeroRabit.current.transform.position;
+        Vector3 myPosition = transform.position;
 
-	virtual protected void Start()
-	{
-		body = GetComponent<Rigidbody2D>();
-		spriter = GetComponent<SpriteRenderer>();
-		animator = GetComponent<Animator>();
-		pointA = transform.position;
-		destVector.y = destVector.z = 0;
-		pointB = pointA + destVector;
-		carrot = GetComponent<Carrot> ();
-	}
+        if (CurrentMode == Mode.Die) return;
+        else if (Mathf.Abs(rabbitPosition.x - myPosition.x) < SeeOn)
+        {
+            CurrentMode = Mode.CarrotAttack;
+        }
+        else if (CurrentMode == Mode.GoToA)
+        {
+            if (isArrived(myPosition, PointA))
+            {
+                CurrentMode = Mode.GoToB;
+            }
+        }
+        else if (CurrentMode == Mode.GoToB)
+        {
+            if (isArrived(myPosition, PointB))
+            {
+                CurrentMode = Mode.GoToA;
+            }
+        }
+        else CurrentMode = Mode.GoToB;
+    }
+    private IEnumerator Attack(HeroRabit rabit)
+    {
+        Animator animator = GetComponent<Animator>();
+
+        animator.SetBool("attack", true);
+        rabit.RemoveHealth(1);
+        yield return new WaitForSeconds(0.8f);
+
+        animator.SetBool("attack", false);
+
+    }
+    private IEnumerator Die()
+    {
+        if (CurrentMode == Mode.Die)
+        {
+            Animator animator = GetComponent<Animator>();
+            animator.SetBool("die", true);
+
+            GetComponent<BoxCollider2D>().isTrigger = true;
+
+            if (MyBody != null) Destroy(MyBody);
+
+            yield return new WaitForSeconds(3.0f);
+            animator.SetBool("die", false);
+            Destroy(gameObject);
+        }
+    }
+    private void Run()
+    {
+        float value = GetDirection();
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        Animator animator = GetComponent<Animator>();
+
+        if (value < 0)
+        {
+            sr.flipX = false;
+
+        }
+        else if (value > 0)
+        {
+            sr.flipX = true;
+        }
+        if (CurrentMode != Mode.CarrotAttack)
+        {
+            if (Mathf.Abs(value) > 0)
+            {
+                Vector2 vel = MyBody.velocity;
+                vel.x = value * Speed;
+                MyBody.velocity = vel;
+            }
+
+            if (Mathf.Abs(value) > 0)
+            {
+                animator.SetBool("run", true);
+            }
+            else
+            {
+                animator.SetBool("run", false);
+            }
+        }
+        else animator.SetBool("run", false);
+    }
+    private float GetDirection()
+    {
+        Vector3 rabbitPosition = HeroRabit.current.transform.position;
+        Vector3 myPosition = transform.position;
+
+        if (CurrentMode == Mode.StandartAttack || CurrentMode == Mode.CarrotAttack)
+        {
+            if (myPosition.x - rabbitPosition.x < -1)
+            {
+                return 1;
+            }
+            else if (myPosition.x - rabbitPosition.x > 1)
+            {
+                return -1;
+            }
+            else return 0;
+        }
+        else if (CurrentMode == Mode.GoToA)
+        {
+            return -1;
+        }
+        else if (CurrentMode == Mode.GoToB)
+        {
+            return 1;
+        }
+        return 0;
+    }
+    private bool isArrived(Vector3 pos, Vector3 target)
+    {
+        target.z = 0;
+        pos.z = 0;
+
+        return Vector3.Distance(pos, target) < 0.2f;
+    }
+
+    private void LaunchCarrot(float direction)
+    {
+        if (direction != 0)
+        {
+            GameObject obj = Instantiate(PrefabCarrot);
+            obj.transform.position = transform.position;
+            obj.transform.position += new Vector3(0.0f, 1.0f, 0.0f);
+
+            Carrot carrot = obj.GetComponent<Carrot>();
+            carrot.launch(direction);
+        }
+    }
+    private void CarrotAttack()
+    {
+        if (CurrentMode == Mode.CarrotAttack && TimeBefore >= CarrotPeriod)
+        {
+            StartCoroutine(ThrowCarrot());
+            TimeBefore = 0;
+        }
+        else TimeBefore += Time.deltaTime;
+    }
+    private IEnumerator ThrowCarrot()
+    {
+
+        Animator animator = GetComponent<Animator>();
 
 
-	void launchCarrot()
-	{
-		if (this.health > 0)
-		{
-			Vector3 my_pos = this.transform.position;
-			Vector3 rabit_pos = HeroRabit.current.transform.position;
+        animator.SetBool("attack", true);
+        Source.Play();
+        LaunchCarrot(GetDirection());
+        yield return new WaitForSeconds(0.8f);
 
-			if (Mathf.Abs(my_pos.x - rabit_pos.x) <= 5.0f)
-			{
-				Carrot carrot = this.GetComponent<Carrot> ();
-				if (rabit_pos.x < my_pos.x) {
-					carrot.launch (-1);
-				} else {
-					carrot.launch (1);
-				}
-			}
-		}
-	}
+        animator.SetBool("attack", false);
+    }
 
-	void FixedUpdate() 
-	{
-
-		if (mode == Mode.Die) return;
-		Vector3 rabbitPosition = HeroRabit.current.transform.position;
-		Vector3 orcPosition = this.transform.position;
-
-		if ((rabbitPosition.x > pointA.x && rabbitPosition.x < pointB.x && Mathf.Abs(rabbitPosition.y - pointA.y) < 0.3f ))
-			mode = Mode.Attack;
-		else if ((mode == Mode.GoToA || mode == Mode.Attack) && HasArrived(orcPosition, pointA))
-			mode = Mode.GoToB;
-		else if ((mode == Mode.GoToB || mode == Mode.Attack) && HasArrived(orcPosition, pointB))
-			mode = Mode.GoToA;
-		Run();
-		if (mode == Mode.Attack)
-		{
-			if (IsDirectlyUnderRabit())
-				mode = Mode.Die;
-			else if ((waitTime -= Time.deltaTime) <= .0f)
-			{
-				launchCarrot ();
-				waitTime = 0;
-			}
-		}
-		StartCoroutine(Die());
-	}
-
-
-	protected float getDirection()
-	{
-		Vector3 rabbitPosition = HeroRabit.current.transform.position;
-		Vector3 orcPosition = transform.position;
-		if (mode == Mode.Attack)
-		{
-			return orcPosition.x - rabbitPosition.x < -1 ? 1 :
-				orcPosition.x - rabbitPosition.x > 1 ? -1 : 0;
-		}
-		return mode == Mode.GoToA ? -1 : mode == Mode.GoToB ? 1 : 0;
-	}
-
-	protected bool HasArrived(Vector3 position, Vector3 target)
-	{
-		position.z = 0;
-		target.z = 0;
-		return Vector3.Distance(position, target) < 0.5f;
-	}
-
+    #endregion
 }

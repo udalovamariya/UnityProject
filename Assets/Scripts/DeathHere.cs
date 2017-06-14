@@ -1,17 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class DeathHere : MonoBehaviour {
+public class DeathHere : MonoBehaviour
+{
 	//Стандартна функція, яка викличеться,
 	//коли поточний об’єкт зіштовхнеться із іншим
-	void OnTriggerEnter2D(Collider2D collider) {
+	void OnTriggerEnter2D(Collider2D collider)
+    {
 		//Намагаємося отримати компонент кролика
-		HeroRabit rabit = collider.GetComponent<HeroRabit> ();
+		HeroRabit rabbit = collider.GetComponent<HeroRabit> ();
 		//Впасти міг не тільки кролик
-		if(rabit != null) {
+		if(rabbit != null)
+        {
 			//Повідомляємо рівень, про смерть кролика
-			LevelController.current.onRabitDeath (rabit);
+			LevelController.Current.OnRabitDeath(rabbit);
 		}
 	}
 }

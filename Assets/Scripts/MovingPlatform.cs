@@ -68,6 +68,8 @@ public class MovingPlatform : MonoBehaviour
             this.transform.position += move_vec;
         }
 
+
+
         //destination.z = 0;
 
     }
