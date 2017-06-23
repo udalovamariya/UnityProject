@@ -46,8 +46,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\AllLevelCoins.cs" />
-     <Compile Include="Assets\Door.cs" />
      <Compile Include="Assets\Libraries\GUI\Scripts\Interaction\EnvelopContent.cs" />
      <Compile Include="Assets\Libraries\GUI\Scripts\Interaction\LanguageSelection.cs" />
      <Compile Include="Assets\Libraries\GUI\Scripts\Interaction\TypewriterEffect.cs" />
@@ -157,8 +155,7 @@
      <Compile Include="Assets\Libraries\GUI\Scripts\UI\UITexture.cs" />
      <Compile Include="Assets\Libraries\GUI\Scripts\UI\UITooltip.cs" />
      <Compile Include="Assets\Libraries\GUI\Scripts\UI\UIViewport.cs" />
-     <Compile Include="Assets\LooseWindow.cs" />
-     <Compile Include="Assets\MasOfWin.cs" />
+     <Compile Include="Assets\Scripts\AllLevelCoins.cs" />
      <Compile Include="Assets\Scripts\Bombs.cs" />
      <Compile Include="Assets\Scripts\Carrot.cs" />
      <Compile Include="Assets\Scripts\Coins.cs" />
@@ -166,24 +163,28 @@
      <Compile Include="Assets\Scripts\Crys.cs" />
      <Compile Include="Assets\Scripts\CrystalPanel.cs" />
      <Compile Include="Assets\Scripts\DeathHere.cs" />
+     <Compile Include="Assets\Scripts\Door.cs" />
      <Compile Include="Assets\Scripts\ForCrys.cs" />
      <Compile Include="Assets\Scripts\ForLifes.cs" />
      <Compile Include="Assets\Scripts\Fruits.cs" />
+     <Compile Include="Assets\Scripts\HeartPlusOneLife.cs" />
      <Compile Include="Assets\Scripts\HeroFollow.cs" />
      <Compile Include="Assets\Scripts\HeroGreenOrc.cs" />
      <Compile Include="Assets\Scripts\HeroRabit.cs" />
      <Compile Include="Assets\Scripts\HeroRedOrc.cs" />
      <Compile Include="Assets\Scripts\LevelController.cs" />
+     <Compile Include="Assets\Scripts\LooseWindow.cs" />
+     <Compile Include="Assets\Scripts\MasOfWin.cs" />
      <Compile Include="Assets\Scripts\MovingPlatform.cs" />
+     <Compile Include="Assets\Scripts\Mushroom.cs" />
      <Compile Include="Assets\Scripts\MusicHead.cs" />
      <Compile Include="Assets\Scripts\MyButton.cs" />
-     <Compile Include="Assets\Scripts\Myshroom.cs" />
      <Compile Include="Assets\Scripts\ParallaxLayer.cs" />
      <Compile Include="Assets\Scripts\SavingCoinsOfLevel.cs" />
-     <Compile Include="Assets\StOfLevel.cs" />
-     <Compile Include="Assets\SuccsesEndLevel.cs" />
-     <Compile Include="Assets\WinWindow.cs" />
-     <Compile Include="Assets\setWindowM.cs" />
+     <Compile Include="Assets\Scripts\SetWindowM.cs" />
+     <Compile Include="Assets\Scripts\StaticticsGame.cs" />
+     <Compile Include="Assets\Scripts\SuccsesEndLevel.cs" />
+     <Compile Include="Assets\Scripts\WinWindow.cs" />
      <None Include="Assets\Libraries\GUI\Resources\Shaders\Unlit - Transparent Masked 1.shader" />
      <None Include="Assets\Libraries\GUI\Resources\Shaders\Unlit - Text 2.shader" />
      <None Include="Assets\Libraries\GUI\Resources\Shaders\Unlit - Transparent Masked 2.shader" />

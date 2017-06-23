@@ -1,19 +1,22 @@
-﻿ using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 
 public class HeroRedOrc : MonoBehaviour
 {
+
     #region Fields
 
     public Vector3 MoveBy = Vector3.one;
     public float Speed = 2.0f;
     public float SeeOn = 9.0f;
-    public float CarrotPeriod = 2.0f;
+    public float CarrotPeriod = 4.0f;
     private float TimeBefore;
 
-    public AudioClip Sound = null;
-    private AudioSource Source = null;
+    public AudioClip SoundAttack;
+    private AudioSource SourceAttack;
+
+    public AudioClip SoundDie;
+    private AudioSource SourceDie;
 
     private Rigidbody2D MyBody = null;
 
@@ -45,8 +48,11 @@ public class HeroRedOrc : MonoBehaviour
         PointA = transform.position;
         PointB = PointA + MoveBy;
 
-        Source = gameObject.AddComponent<AudioSource>();
-        Source.clip = Sound;
+        SourceAttack = gameObject.AddComponent<AudioSource>();
+        SourceAttack.clip = SoundAttack;
+
+        SourceDie = gameObject.AddComponent<AudioSource>();
+        SourceDie.clip = SoundDie;
     }
     void FixedUpdate()
     {
@@ -56,26 +62,29 @@ public class HeroRedOrc : MonoBehaviour
         StartCoroutine(Die());
     }
 
-    #region Private methods
+    #region Methods
 
-    void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if (CurrentMode != Mode.Die)
         {
             HeroRabit rabbit = collision.gameObject.GetComponent<HeroRabit>();
             if (rabbit != null)
             {
-                Vector3 rabbitPosition = HeroRabit.current.transform.position;
+                Vector3 rabbitPosition = HeroRabit.Current.transform.position;
                 Vector3 myPosition = transform.position;
                 CurrentMode = Mode.StandartAttack;
 
-                if (CurrentMode == Mode.StandartAttack && Mathf.Abs(rabbitPosition.y - myPosition.y) < 1.6f)
+                if (CurrentMode == Mode.StandartAttack && Mathf.Abs(rabbitPosition.y - myPosition.y) < 1.0f)
                 {
                     StartCoroutine(Attack(rabbit));
                 }
                 else if (CurrentMode == Mode.StandartAttack && Mathf.Abs(rabbitPosition.y - myPosition.y) > 1.6f)
                 {
                     CurrentMode = Mode.Die;
+                    rabbit.GetUp();
+                    if (MusicHead.Instance.IsSound)
+                        SourceDie.Play();
                 }
             }
         }
@@ -83,7 +92,7 @@ public class HeroRedOrc : MonoBehaviour
 
     private void SetMode()
     {
-        Vector3 rabbitPosition = HeroRabit.current.transform.position;
+        Vector3 rabbitPosition = HeroRabit.Current.transform.position;
         Vector3 myPosition = transform.position;
 
         if (CurrentMode == Mode.Die) return;
@@ -93,14 +102,14 @@ public class HeroRedOrc : MonoBehaviour
         }
         else if (CurrentMode == Mode.GoToA)
         {
-            if (isArrived(myPosition, PointA))
+            if (IsArrived(myPosition, PointA))
             {
                 CurrentMode = Mode.GoToB;
             }
         }
         else if (CurrentMode == Mode.GoToB)
         {
-            if (isArrived(myPosition, PointB))
+            if (IsArrived(myPosition, PointB))
             {
                 CurrentMode = Mode.GoToA;
             }
@@ -171,7 +180,7 @@ public class HeroRedOrc : MonoBehaviour
     }
     private float GetDirection()
     {
-        Vector3 rabbitPosition = HeroRabit.current.transform.position;
+        Vector3 rabbitPosition = HeroRabit.Current.transform.position;
         Vector3 myPosition = transform.position;
 
         if (CurrentMode == Mode.StandartAttack || CurrentMode == Mode.CarrotAttack)
@@ -196,14 +205,13 @@ public class HeroRedOrc : MonoBehaviour
         }
         return 0;
     }
-    private bool isArrived(Vector3 pos, Vector3 target)
+    private bool IsArrived(Vector3 pos, Vector3 target)
     {
         target.z = 0;
         pos.z = 0;
 
         return Vector3.Distance(pos, target) < 0.2f;
     }
-
     private void LaunchCarrot(float direction)
     {
         if (direction != 0)
@@ -213,7 +221,7 @@ public class HeroRedOrc : MonoBehaviour
             obj.transform.position += new Vector3(0.0f, 1.0f, 0.0f);
 
             Carrot carrot = obj.GetComponent<Carrot>();
-            carrot.launch(direction);
+            carrot.Launch(direction);
         }
     }
     private void CarrotAttack()
@@ -232,7 +240,10 @@ public class HeroRedOrc : MonoBehaviour
 
 
         animator.SetBool("attack", true);
-        Source.Play();
+
+        if (MusicHead.Instance.IsSound)
+            SourceAttack.Play();
+
         LaunchCarrot(GetDirection());
         yield return new WaitForSeconds(0.8f);
 
@@ -240,4 +251,5 @@ public class HeroRedOrc : MonoBehaviour
     }
 
     #endregion
+
 }

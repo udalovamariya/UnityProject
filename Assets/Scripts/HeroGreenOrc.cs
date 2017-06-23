@@ -1,18 +1,23 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HeroGreenOrc : MonoBehaviour
 {
+
     #region Fields
 
     public float Speed = 2.0f;
     public Vector3 MoveBy = Vector3.one;
 
-    public AudioClip Sound = null;
-    private AudioSource Source = null;
+    public AudioClip SoundAttack = null;
+    private AudioSource SourceAttack = null;
+
+    public AudioClip SoundDie = null;
+    private AudioSource SourceDie = null;
 
     private Rigidbody2D MyBody = null;
+    private static uint cnt = 0;
+    private bool Dying = false;
 
     public enum Mode
     {
@@ -36,27 +41,40 @@ public class HeroGreenOrc : MonoBehaviour
         MoveBy.y = 0;
         MoveBy.z = 0;
         PointB = PointA + MoveBy;
-        Source = gameObject.AddComponent<AudioSource>();
-        Source.clip = Sound;
+
+        SourceAttack = gameObject.AddComponent<AudioSource>();
+        SourceAttack.clip = SoundAttack;
+
+        SourceDie = gameObject.AddComponent<AudioSource>();
+        SourceDie.clip = SoundDie;
     }
     void FixedUpdate()
     {
         SetMode();
         Run();
         StartCoroutine(Die());
+
+        if (Dying && MusicHead.Instance.IsSound)
+        {
+
+            Dying = false;
+        }
+
     }
 
-    #region Private methods
+    #region Methods
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (CurrentMode != Mode.Die)
+        if (CurrentMode != Mode.Die && !HeroRabit.Current.GetComponent<Animator>().GetBool("die"))
         {
             HeroRabit rabbit = collision.gameObject.GetComponent<HeroRabit>();
             if (rabbit != null)
             {
+                Debug.Log(++cnt);
                 Vector3 myPosition = transform.position;
-                Vector3 rabbitPosition = HeroRabit.current.transform.position;
+                Vector3 rabbitPosition = HeroRabit.Current.transform.position;
                 CurrentMode = Mode.Attack;
 
                 if (CurrentMode == Mode.Attack && Mathf.Abs(rabbitPosition.y - myPosition.y) < 1.2f)
@@ -66,6 +84,9 @@ public class HeroGreenOrc : MonoBehaviour
                 else if (CurrentMode == Mode.Attack && Mathf.Abs(rabbitPosition.y - myPosition.y) > 1.2f)
                 {
                     CurrentMode = Mode.Die;
+                    rabbit.GetUp();
+                    if (MusicHead.Instance.IsSound)
+                        SourceDie.Play();
                 }
             }
         }
@@ -73,15 +94,18 @@ public class HeroGreenOrc : MonoBehaviour
 
     private void SetMode()
     {
-        Vector3 rabbitPosition = HeroRabit.current.transform.position;
+        Vector3 rabbitPosition = HeroRabit.Current.transform.position;
         Vector3 myPosition = transform.position;
 
         if (CurrentMode == Mode.Die) return;
         else if (rabbitPosition.x > Mathf.Min(PointA.x, PointB.x)
                  && rabbitPosition.x < Mathf.Max(PointA.x, PointB.x)
-                 && Mathf.Abs(rabbitPosition.y - myPosition.y) < 1.0f)
+                 && Mathf.Abs(rabbitPosition.y - myPosition.y) < 1.0f
+                 && Mathf.Abs(rabbitPosition.x - myPosition.x) < 7f)
         {
             CurrentMode = Mode.Attack;
+            Speed = 4.0f;
+            return;
         }
         else if (CurrentMode == Mode.GoToA)
         {
@@ -94,6 +118,8 @@ public class HeroGreenOrc : MonoBehaviour
                 CurrentMode = Mode.GoToA;
         }
         else CurrentMode = Mode.GoToB;
+
+        Speed = 2.0f;
     }
     private IEnumerator Attack(HeroRabit rabbit)
     {
@@ -101,13 +127,11 @@ public class HeroGreenOrc : MonoBehaviour
 
         animator.SetBool("attack", true);
 
-        if (MusicHead.Instance.IsSoundOn == true)
-        {
-            Source.Play();
-        }
+        if (MusicHead.Instance.IsSound)
+            SourceAttack.Play();
 
         rabbit.RemoveHealth(1);
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(1.0f);
         animator.SetBool("attack", false);
     }
     private IEnumerator Die()
@@ -115,9 +139,11 @@ public class HeroGreenOrc : MonoBehaviour
         if (CurrentMode == Mode.Die)
         {
             Animator animator = GetComponent<Animator>();
+
             animator.SetBool("die", true);
 
             GetComponent<BoxCollider2D>().isTrigger = true;
+
 
             if (MyBody != null) Destroy(MyBody);
 
@@ -161,7 +187,7 @@ public class HeroGreenOrc : MonoBehaviour
     private float GetDirection()
     {
         Vector3 myPosition = transform.position;
-        Vector3 rabbitPosition = HeroRabit.current.transform.position;
+        Vector3 rabbitPosition = HeroRabit.Current.transform.position;
 
         if (CurrentMode == Mode.Attack)
         {
@@ -186,6 +212,7 @@ public class HeroGreenOrc : MonoBehaviour
         return 0;
     }
 
+
     private bool IsArrived(Vector3 pos, Vector3 target)
     {
         target.z = 0;
@@ -195,4 +222,5 @@ public class HeroGreenOrc : MonoBehaviour
     }
 
     #endregion
+
 }

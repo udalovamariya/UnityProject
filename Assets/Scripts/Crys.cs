@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Crys: Collectable
 {
@@ -12,10 +10,11 @@ public class Crys: Collectable
         sprite = GetComponent<SpriteRenderer>().sprite.texture.name;
     }
 
-    protected override void OnRabitHit(HeroRabit rabit)
-    {
-        ForCrys.GemsCounter.GetGemThroughToken(sprite);
-        this.CollectedHide();
+    protected override void OnRabitHit(HeroRabit rabbit)
+    {   
+        ForCrys.CrysCounter.GetCrysThroughToken(sprite);
+		CollectedHide();
+		CrystalPanel.Current.AddCrystal(sprite);
     }
 
 }

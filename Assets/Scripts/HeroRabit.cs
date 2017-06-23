@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HeroRabit : MonoBehaviour
@@ -7,51 +6,75 @@ public class HeroRabit : MonoBehaviour
     #region Fields
 
     public float WaitTime = 2f;
-    float to_Wait = 0f;
-	public Vector3 targetScale = Vector3.one;
-    public Vector3 scale_speed = Vector3.one;
-    public static HeroRabit current;
-    Transform heroParent = null;
-    Rigidbody2D myBody = null;
+    public float ToWait = 2.0f;
+
+    public Vector3 TargetScale = Vector3.one;
+    public Vector3 Scale_speed = Vector3.one;
+    public static HeroRabit Current;
+
+    Transform HeroParent = null;
+    Rigidbody2D MyBody = null;
     SpriteRenderer sr;
-    public int health = 1;
-    bool isGrounded = false;
-    bool JumpActive = false;
-    float JumpTime = 0f;
+
+    public int Health = 1;
     public float MaxJumpTime = 2f;
     public float JumpSpeed = 2f;
-    public float speed = 3;
-    public bool IsDead;
+    public float Speed = 3;
+    public bool IsForMushRooms = false;
     public bool IsImmortal;
-    public bool isForMushRooms = false;
+    public bool IsDead;
+
+    private bool IsGrounded = false;
+    private bool IsJump = false;
+    private float JumpTime = 0f;
+
+    private int rh = 0;
+
+    public AudioClip SoundJump;
+    public AudioSource SourceJump;
+
+    public AudioClip SoundRun;
+    public AudioSource SourceRun;
+
+    public AudioClip SoundDie;
+    public AudioSource SourceDie;
 
     #endregion
 
     void Start()
     {
-        myBody = GetComponent<Rigidbody2D>();
+        MyBody = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
-        heroParent = transform.parent;
+        HeroParent = transform.parent;
+
+        SourceJump = gameObject.AddComponent<AudioSource>();
+        SourceJump.clip = SoundJump;
+        SourceRun = gameObject.AddComponent<AudioSource>();
+        SourceRun.clip = SoundRun;
+        SourceDie = gameObject.AddComponent<AudioSource>();
+        SourceDie.clip = SoundDie;
     }
     void FixedUpdate()
     {
         Vector3 from = transform.position + Vector3.up * 0.3f;
         Vector3 to = transform.position + Vector3.down * 0.1f;
 
-        int LayerID = (1 << LayerMask.NameToLayer("Ground"));
+        int layer_id = (1 << LayerMask.NameToLayer("Ground"));
 
-        RaycastHit2D hit = Physics2D.Linecast(from, to, LayerID);
+        RaycastHit2D hit = Physics2D.Linecast(from, to, layer_id);
         if (hit)
-            isGrounded = true;
+            IsGrounded = true;
         else
-            isGrounded = false;
+            IsGrounded = false;
 
         float value = Input.GetAxis("Horizontal");
         if (Mathf.Abs(value) > 0)
         {
-            Vector2 vel = myBody.velocity;
-            vel.x = value * speed;
-            myBody.velocity = vel;
+
+
+            Vector2 vel = MyBody.velocity;
+            vel.x = value * Speed;
+            MyBody.velocity = vel;
         }
 
         if (value < 0)
@@ -63,6 +86,8 @@ public class HeroRabit : MonoBehaviour
         if (Mathf.Abs(value) > 0)
         {
             animator.SetBool("run", true);
+            if (MusicHead.Instance.IsSound)
+                SourceRun.Play();
         }
         else
         {
@@ -72,30 +97,34 @@ public class HeroRabit : MonoBehaviour
         Debug.DrawLine(from, to, Color.red);
 
 
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetButtonDown("Jump") && IsGrounded)
         {
-            JumpActive = true;
+            IsJump = true;
+            if (MusicHead.Instance.IsSound)
+                SourceJump.Play();
         }
-        if (JumpActive)
+        if (IsJump)
         {
+
+
             if (Input.GetButton("Jump"))
             {
                 JumpTime += Time.deltaTime;
                 if (JumpTime < MaxJumpTime)
                 {
-                    Vector2 vel = myBody.velocity;
+                    Vector2 vel = MyBody.velocity;
                     vel.y = JumpSpeed * (1.0f - JumpTime / MaxJumpTime);
-                    myBody.velocity = vel;
+                    MyBody.velocity = vel;
                 }
             }
             else
             {
-                JumpActive = false;
+                IsJump = false;
                 JumpTime = 0;
             }
         }
 
-        if (isGrounded)
+        if (IsGrounded)
         {
             animator.SetBool("jump", false);
         }
@@ -106,109 +135,110 @@ public class HeroRabit : MonoBehaviour
         if (hit)
         {
             if (hit.transform != null
-            && hit.transform.GetComponent<MovingPlatform>() != null)
+                && hit.transform.GetComponent<MovingPlatform>() != null)
             {
-                SetNewParent(this.transform, hit.transform);
+                SetNewParent(transform, hit.transform);
             }
         }
         else
         {
-            SetNewParent(this.transform, this.heroParent);
+            SetNewParent(transform, HeroParent);
         }
 
         if (animator.GetBool("die"))
         {
-            to_Wait -= Time.deltaTime;
-            if (to_Wait <= 0)
+            ToWait -= Time.deltaTime;
+            if (ToWait <= 0)
             {
                 animator.SetBool("die", false);
-                LevelController.Current.OnRabitDeath(this);
-                to_Wait = WaitTime;
+                //LevelController.Current.OnRabitDeath(this);
+                ToWait = WaitTime;
             }
         }
     }
     void Awake()
     {
-        to_Wait = WaitTime;
-        current = this;
+        ToWait = WaitTime;
+        Current = this;
     }
 
-    #region Private methods
+    #region Methods
 
-    private void OnHealthChange()
+    public void GetUp()
     {
-        if (health == 1)
+        for (float i = 0f; i < 1f; i += 0.1f)
         {
-            transform.localScale = Vector3.one;
-        }
-        else if (health == 2)
-        {
-            transform.localScale = Vector3.one * 2;
-        }
-        else if (health == 0)
-        {
-            Animator animator = GetComponent<Animator>();
-            animator.SetBool("die", true);
-			//isForMushRooms = false;
-			health = 1;
-            StartCoroutine(Wait(1.5f));
+            Vector2 vel = MyBody.velocity;
+            vel.y += i;
+            MyBody.velocity = vel;
         }
     }
     public void AddHealth(int number)
     {
-        health += number;
-        if (health < 0)
+        Health += number;
+        if (Health < 0)
         {
-            health = 0;
+            Health = 0;
         }
         OnHealthChange();
-    }
-    public void Affect()
-    {
-        IsDead = true;
-        Animator animator = GetComponent<Animator>();
-        animator.SetBool("die", true);
-        StartCoroutine(Wait(1.5f));
-    }
-    private IEnumerator Wait(float duration)
-    { 
-        yield return new WaitForSeconds(duration);
-        LevelController.Current.OnRabitDeath(this);
-        IsDead = false;
-        Animator animator = GetComponent<Animator>();
-        animator.SetBool("die", false);
     }
     public void RemoveHealth(int number)
     {
-        health -= number;
-        if (health < 0)
+        Health -= number;
+        if (Health < 0)
         {
-            health = 0;
+            Health = 0;
         }
         OnHealthChange();
     }
-    static void SetNewParent(Transform obj, Transform new_parent)
+    private void OnHealthChange()
     {
-        if (obj.transform.parent != new_parent)
+        if (Health == 1)
         {
-            //Засікаємо позицію у Глобальних координатах
-            Vector3 pos = obj.transform.position;
-            //Встановлюємо нового батька
-            obj.transform.parent = new_parent;
-            //Після зміни батька координати кролика зміняться
-            //Оскільки вони тепер відносно іншого об’єкта
-            //повертаємо кролика в ті самі глобальні координати
-            obj.transform.position = pos;
+            transform.localScale = Vector3.one;
+            Health = 0;
         }
-    }
-    public void Scaletwiceformushrooms()
-    {
-        if (!isForMushRooms)
+        else if (Health == 2)
         {
-            isForMushRooms = true;
-            transform.localScale += new Vector3(0.3f, 0.3f, 0.2f);
+            transform.localScale = Vector3.one * 2;
+            Health = 0;
+        }
+        else if (Health == 0)
+        {
+               if (MusicHead.Instance.IsSound)
+                SourceDie.Play();
+
+            Animator animator = GetComponent<Animator>();
+            animator.SetBool("die", true);
+            Health = 1;
+            StartCoroutine(Wait(ToWait));
         }
     }
 
+    static void SetNewParent(Transform obj, Transform NewParent)
+    {
+        if (obj.transform.parent != NewParent)
+        {
+            Vector3 pos = obj.transform.position;
+            obj.transform.parent = NewParent;
+            obj.transform.position = pos;
+        }
+    }
+
+    public void Scaletwiceformushrooms()
+    {
+        if (!IsForMushRooms)
+        {
+            IsForMushRooms = true;
+            transform.localScale += new Vector3(0.3f, 0.3f, 0.2f);
+        }
+    }
+    private IEnumerator Wait(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        LevelController.Current.OnRabitDeath(this);
+    }
+
     #endregion
+
 }

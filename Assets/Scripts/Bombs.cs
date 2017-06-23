@@ -1,13 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Bombs : Collectable
+﻿public class Bombs : Collectable
 {
-
-    protected override void OnRabitHit(HeroRabit rabit)
+    protected override void OnRabitHit(HeroRabit rabbit)
     {
-        this.CollectedHide();
-        rabit.RemoveHealth(1);
+        CollectedHide();
+        rabbit.RemoveHealth(1);
     }
 }

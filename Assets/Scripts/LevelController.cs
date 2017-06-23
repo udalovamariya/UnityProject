@@ -3,111 +3,172 @@ using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour
 {
+
     #region Fields
 
-    public static GameObject Objects;
-    public int Lifes = 3;
-    private int TotalDeath;
-    Vector3 StartingPosition;
-    
-    public UILabel CoinsLabel;
-    public UILabel FruitsLabel;
-    public UI2DSprite CrystalSprites;
+    public static StaticticsGame Level1;
+    public static StaticticsGame Level2;
 
-    public int AllLevelCoins = 0;
+    public static bool SOBRANU_VSE_KRISTALU;
+    public static bool SOBRANU_VSE_Fr;
+
+    public static GameObject Objects;
     public static int CollectedCoins;
+    public static LevelController Current;
+    public static bool IsLevel1Complated;
+    public static bool IsLevel2Complated;
+
+    private int TotalDeath;
+    private Vector3 StartingPosition;
+    private int NumberFr = 0;
+
+    public int Lifes = 3;
+    public GameObject LosePanelPrefab;
+    public int AllLevelCoins = 0;
     public MyButton PlayButton;
-    public int NumberFr = 0;
-    public GameObject WindowWin;
     public CrystalPanel CrystalPanel;
     public GameObject WinPanelPrefab;
     public static bool IsLevel1FruitCollected;
-    public static bool IsLevel1CrysralsCollected;
+
     public static bool IsLevel2FruitCollected;
     public static bool IsLevel2CrysralsCollected;
     public static int AllFruitsOnLevel1 = 11;
+
     public AudioSource MusicSource;
     public AudioClip MusicClip;
 
-    public static bool IsLevel1Completed; 
-    public static LevelController Current;
+    public UILabel coinsLabel;
+    public UILabel fruitsLabel;
+    public UI2DSprite crystalSprites;
 
     #endregion
 
-    #region Methods
-
-    private void Play()
-    {
-        SceneManager.LoadScene("chooselevel");
-    }
-    public void AddCoins(int i)
-    {
-        AllLevelCoins += i;
-        SavingCoinsOfLevel.SavedMoneyAllLevel.sumCoins(AllLevelCoins);
-    }
-    public void AddFruits()
-    {
-        NumberFr += 1;
-        FruitsLabel.text = NumberFr + "/" + AllFruitsOnLevel1;
-    }
-
-    public void SetStartPosition(Vector3 pos)
-    {
-        StartingPosition = pos;
-    }
     void Awake()
     {
         Current = this;
-        if ((SceneManager.GetActiveScene().name.Equals("mainscene"))){ }
-        else  Current.SetStartPosition(HeroRabit.current.transform.position); 
+        if (!(SceneManager.GetActiveScene().name.Equals("mainscene")))
+        {
+            Current.SetStartPosition(HeroRabit.Current.transform.position);
+        }
+
         Objects = GameObject.Find("Objects");
         if (SceneManager.GetActiveScene().name.Equals("mainscene"))
         {
             PlayButton = GameObject.Find("PlayButton").GetComponent<MyButton>();
-            PlayButton.signalOnClick.AddListener(Play);
+            PlayButton.SignalOnClick.AddListener(Play);
 
             GameObject.Find("PlayButton").GetComponent<MyButton>()
-               .signalOnClick.AddListener(Play);
+               .SignalOnClick.AddListener(Play);
             GameObject.Find("SetButton").GetComponent<MyButton>()
-                .signalOnClick.AddListener(SetWindow);
+                .SignalOnClick.AddListener(SetWindow);
         }
+
         SettingsForLevel();
-        int Level1Crystals = PlayerPrefs.GetInt("isLevel1CrysralsCollected", 0);
-        if (Level1Crystals == 1)
-            IsLevel1CrysralsCollected = true;
-        else
-            IsLevel1CrysralsCollected = false;
-
-        int Level1Fruit = PlayerPrefs.GetInt("isLevel1FruitCollected", 0);
-        if (Level1Fruit == 1)
-            IsLevel1FruitCollected = true;
-        else
-            IsLevel1FruitCollected = false;
-
-        int Level2Crystals = PlayerPrefs.GetInt("isLevel2CrysralsCollected", 0);
-        if (Level2Crystals == 1)
-            IsLevel2CrysralsCollected = true;
-        else
-            IsLevel2CrysralsCollected = false;
-
-        int Level2Fruit = PlayerPrefs.GetInt("isLevel2FruitCollected", 0);
-        if (Level2Fruit == 1)
-            IsLevel2FruitCollected = true;
-        else
-            IsLevel2FruitCollected = false;
     }
     void Start()
     {
         SetMusic();
     }
 
-    private void GetWindowForSettings()
+    #region Methods
+
+    private void SetWindow()
     {
-        GameObject.Find("setWindow").GetComponent<setWindowM>().Display();
+        GameObject.Find("setWindow").GetComponent<SetWindowM>().Display();
+    }
+    private void Play()
+    {
+        SceneManager.LoadScene("chooselevel");
+    }
+
+    public void SetStartPosition(Vector3 pos)
+    {
+        StartingPosition = pos;
+    }
+    public void AddCoins(int i)
+    {
+        AllLevelCoins += i;
+        SavingCoinsOfLevel.SavedMoneyAllLevel.SumCoins(AllLevelCoins);
+    }
+    public void AddFruits()
+    {
+        NumberFr += 1;
+        fruitsLabel.text = NumberFr + "/" + AllFruitsOnLevel1;
     }
     private void DelegativeLoadScene()
     {
         SceneManager.LoadScene("LevelMenu");
+    }
+
+
+    private void SetMusic()
+    {
+        MusicSource = gameObject.AddComponent<AudioSource>();
+        MusicSource.clip = MusicClip;
+        MusicSource.priority = 10;
+        MusicSource.volume = 0.15f;
+
+        if (MusicHead.Instance.IsMusic)
+        {
+            MusicSource.loop = true;
+            MusicSource.Play();
+        }
+    }
+    public void OnRabitDeath(HeroRabit rabbit, bool DeathZone = false)
+    {
+        if (rabbit.IsForMushRooms)
+        {
+            rabbit.transform.localScale /= 2.0f;
+            rabbit.IsForMushRooms = false;
+            if (!DeathZone)
+                return;
+        }
+
+        if (SceneManager.GetActiveScene().name.Equals("Level1")
+            || SceneManager.GetActiveScene().name.Equals("Level2"))
+        {
+            --Lifes;
+            ++TotalDeath;
+
+            if (MusicHead.Instance.IsSound && DeathZone)
+                rabbit.SourceDie.Play();
+
+            if (Lifes < 0)
+            {
+                
+                GameObject parent = UICamera.first.transform.parent.gameObject;
+               
+                GameObject obj = NGUITools.AddChild(parent, LosePanelPrefab);
+               
+//                LooseWindow lose = obj.GetComponent<LooseWindow>();
+                CollectedCoins += AllLevelCoins;
+                PlayerPrefs.SetInt("collectedCoins", CollectedCoins);
+                Time.timeScale = 0;
+            }
+            else
+            {
+                ForLifes.NLivesCounter.Clear(TotalDeath);
+            }
+        }
+
+        rabbit.transform.position = StartingPosition;
+    }
+    public void OnRabitLife(HeroRabit rabit)
+    {
+        if (SceneManager.GetActiveScene().name.Equals("Level1")
+            || SceneManager.GetActiveScene().name.Equals("Level2"))
+        {
+            if (Lifes != 3)
+            {
+                ++Lifes;
+                --TotalDeath;
+                ForLifes.NLivesCounter.Add(Lifes);
+            }
+        }
+    }
+    private void GetWindowForSettings()
+    {
+        GameObject.Find("setWindow").GetComponent<SetWindowM>().Display();
     }
 
     private void SettingsForLevel()
@@ -116,68 +177,42 @@ public class LevelController : MonoBehaviour
             || SceneManager.GetActiveScene().name.Equals("Level2"))
         {
             GameObject.Find("SetButton").GetComponent<MyButton>()
-                .signalOnClick.AddListener(GetWindowForSettings);
+                .SignalOnClick.AddListener(GetWindowForSettings);
         }
     }
-    private void SetMusic()
+    public void CreateWinPanel()
     {
-        MusicSource = gameObject.AddComponent<AudioSource>();
-        MusicSource.clip = MusicClip;
-        MusicSource.priority = 10;
-        MusicSource.volume = 0.15f;
-
-        if (MusicHead.Instance.IsMusicOn)
+        if (SceneManager.GetActiveScene().name.Equals("Level1"))
         {
-            MusicSource.loop = true;
-            MusicSource.Play();
+            IsLevel1Complated = true;
+            PlayerPrefs.SetInt("IsLevelPassed", 1);
+            PlayerPrefs.Save();
         }
-    }
-    private void SetWindow()
-    {
-        GameObject.Find("setWindow").GetComponent<setWindowM>().Display();
-    }
-    public void createWinPanel()
-    {
-        IsLevel1Completed = true;
+       else if (SceneManager.GetActiveScene().name.Equals("Level2"))
+        {
+            IsLevel2Complated = true;
+            PlayerPrefs.SetInt("IsLevelPassed2", 1);
+            PlayerPrefs.Save();
+        }
 
-        PlayerPrefs.SetInt("isLevel1Completed", 1);
-        PlayerPrefs.Save();
+
+        GameObject parent = UICamera.first.transform.parent.gameObject;
+        GameObject obj = NGUITools.AddChild(parent, WinPanelPrefab);
+
+        obj.GetComponent<MasOfWin>().SetCoins(AllLevelCoins);
+		if (SceneManager.GetActiveScene().name.Equals("Level1"))
+        	obj.GetComponent<MasOfWin>().SetFruits(NumberFr, 1);
+
+		if (SceneManager.GetActiveScene().name.Equals("Level2"))
+			obj.GetComponent<MasOfWin>().SetFruits(NumberFr, 2);
+
+        obj.GetComponent<MasOfWin>().SetCrystal(CrystalPanel.GetObtainedCrystal(), 1);
+
+        Time.timeScale = 0;
         CollectedCoins += AllLevelCoins;
         PlayerPrefs.SetInt("collectedCoins", CollectedCoins);
-
-        GameObject Parent = UICamera.first.transform.parent.gameObject;
-        GameObject Obj = NGUITools.AddChild(Parent, WinPanelPrefab);
-        MasOfWin Win = Obj.GetComponent<MasOfWin>();
-        Win.setCoins(AllLevelCoins);
-        Win.setFruits(NumberFr, 1);
-        Time.timeScale = 0;
-
-        if (IsLevel1CrysralsCollected)
-            PlayerPrefs.SetInt("isLevel1CrysralsCollected", 1);
-        PlayerPrefs.Save();
-    }
-    public void OnRabitDeath(HeroRabit rabit)
-    {
-        if (SceneManager.GetActiveScene().name.Equals("Level1")
-            || SceneManager.GetActiveScene().name.Equals("Level2"))
-        {
-            Lifes--;
-            TotalDeath++;
-
-            if (Lifes < 0)
-            {
-                PlayerPrefs.Save();
-                SceneManager.LoadScene("chooselevel");
-            }
-            else
-            {
-                ForLifes.NLivesCounter.Clear(TotalDeath);
-            }
-        }
-
-        rabit.transform.position = StartingPosition;
     }
 
     #endregion
+
 }
-  

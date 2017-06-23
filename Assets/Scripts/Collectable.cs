@@ -1,19 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Collectable : MonoBehaviour {
-	protected virtual void OnRabitHit(HeroRabit rabit) {
-	}
-	void OnTriggerEnter2D(Collider2D collider) {
-		
-			HeroRabit rabit = collider.GetComponent<HeroRabit>();
-			if(rabit != null) {
-				this.OnRabitHit (rabit);
+public class Collectable : MonoBehaviour
+{
+	protected virtual void OnRabitHit(HeroRabit rabit)
+    {
 
-		}
+    }
+	private void OnTriggerEnter2D(Collider2D collider)
+    {
+			HeroRabit rabbit = collider.GetComponent<HeroRabit>();
+			if (rabbit != null)
+            {
+				OnRabitHit (rabbit);
+		    }
 	}
-	public void CollectedHide() {
-		Destroy(this.gameObject);
+	public void CollectedHide()
+    {
+		Destroy(gameObject);
 	}
 }

@@ -1,8 +1,8 @@
 ﻿public class Coins : Collectable
 {
-	protected override void OnRabitHit(HeroRabit rabit)
+	protected override void OnRabitHit (HeroRabit rabbit)
 	{
-		LevelController.Current.AddCoins(1);
-		this.CollectedHide ();
+		LevelController.Current.AddCoins (1);
+		CollectedHide ();
 	}
 }

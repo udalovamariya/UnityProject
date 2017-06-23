@@ -1,57 +1,68 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Carrot : Collectable
 {
-    public Vector3 speed = new Vector3(2.0f, 0.0f, 0.0f);
-    private float direction = 1.0f;
+
+    #region Fields
+
     public float lifeTime = 5.0f;
-    void Start()
+    public Vector3 Speed = new Vector3(2.0f, 0.0f, 0.0f);
+
+    private float Direction = 1.0f;
+
+    public static uint deaths = 0;
+
+    #endregion
+
+    void Awake()
     {
-        StartCoroutine(destroyLater());
+        StartCoroutine(DestroyLater());
     }
 
-    public void launch(float direction)
+    #region Methods
+
+    public void Launch(float Direction)
     {
-        this.direction = direction;
+        this.Direction = Direction;
     }
 
-    IEnumerator destroyLater()
+    IEnumerator DestroyLater()
     {
         yield return new WaitForSeconds(lifeTime);
-        Destroy(this.gameObject);
-
+        Destroy(gameObject);
     }
-
-
-
 
     public void FixedUpdate()
     {
-        if (direction != 0)
+        if (Direction != 0)
         {
             SpriteRenderer sr = GetComponent<SpriteRenderer>();
-            if (direction < 0)
+            if (Direction < 0)
             {
                 sr.flipX = true;
-
             }
-            else if (direction > 0)
+            else if (Direction > 0)
             {
                 sr.flipX = false;
             }
 
-            if (Mathf.Abs(direction) > 0)
+            if (Mathf.Abs(Direction) > 0)
             {
-                this.transform.position += direction * speed * Time.deltaTime;
+                transform.position += Direction * Speed * Time.deltaTime;
             }
         }
     }
 
-    protected override void OnRabitHit(HeroRabit rabit)
+    protected override void OnRabitHit(HeroRabit rabbit)
     {
-        this.CollectedHide();
-        rabit.RemoveHealth(1);
+        CollectedHide();
+		if (!HeroRabit.Current.GetComponent<Animator>().GetBool("die"))
+		{
+			rabbit.RemoveHealth(1);
+        }
     }
+
+    #endregion
+
 }

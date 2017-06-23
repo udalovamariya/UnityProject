@@ -1,46 +1,53 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ForCrys : MonoBehaviour
 {
-    public static ForCrys GemsCounter;
 
-    public Sprite gem1;
-    public Sprite gem2;
-    public Sprite gem3;
+    #region Fields
 
-    private UI2DSprite[] Gems;
+    public static ForCrys CrysCounter;
+
+    public Sprite Crystal1;
+    public Sprite Crystal2;
+    public Sprite Crystal3;	
+
+    public UI2DSprite[] Cryss;
+
+    #endregion
 
     private void Awake()
     {
-        GemsCounter = this;
-        Gems = new UI2DSprite[3];
-        GetGems();
+        CrysCounter = this;
+        Cryss = new UI2DSprite[3];
+        GetCryss();
     }
 
-    public void GetGemThroughToken(string gemID)
+    #region Methods
+
+    public void GetCrysThroughToken(string gemID)
     {
+
         if (gemID.Equals("gem-1"))
         {
-            Gems[0].sprite2D = gem1;
+            Cryss[0].sprite2D = Crystal1;
         }
         else if (gemID.Equals("gem-2"))
         {
-            Gems[1].sprite2D = gem2;
+            Cryss[1].sprite2D = Crystal2;
         }
         else if (gemID.Equals("gem-3"))
         {
-            Gems[2].sprite2D = gem3;
+            Cryss[2].sprite2D = Crystal3;
         }
     }
-
-    private void GetGems()
+    public void GetCryss()
     {
         for (int i = 0; i < transform.childCount; ++i)
         {
-            Gems[i] = transform.GetChild(i).GetComponent<UI2DSprite>();
+            Cryss[i] = transform.GetChild(i).GetComponent<UI2DSprite>();
         }
     }
+
+    #endregion
 
 }

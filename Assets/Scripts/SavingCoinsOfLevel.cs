@@ -1,26 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 
-public class SavingCoinsOfLevel : MonoBehaviour {
+public class SavingCoinsOfLevel : MonoBehaviour
+{
+
+    #region Fields
 
     public static SavingCoinsOfLevel SavedMoneyAllLevel;
-    private UILabel countOfCoints;
+
+    private UILabel CountOfCoints;
+
+    #endregion
 
     private void Awake()
     {
         SavedMoneyAllLevel = this;
-        countOfCoints = transform.GetComponent<UILabel>();
+        CountOfCoints = transform.GetComponent<UILabel>();
     }
 
-   
-    string num = "";
-    while (n < 1000)
+    public void SumCoins(int n)
     {
-       num += "0";
-       n = n * 10;
+        string result = "";
+        int buff = n;
+        while (buff < 1000)
+        {
+            result += "0";
+            buff *= 10;
+        }
+        CountOfCoints.text = result + n;
     }
-    countOfCoints.text = num + n.ToString();
-
 }
 

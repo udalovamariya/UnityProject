@@ -1,21 +1,27 @@
-﻿е общиеusing System;
+﻿using System;
 using UnityEngine;
 
 public class MusicHead
 {
 
+    #region Fields
+
     public static MusicHead Instance = new MusicHead();
 
-    
-	
-    
+    public bool IsMusic = true;
+    public bool IsSound = true;
 
-    public void SetSoundMode(bool mode)
+    #endregion
+
+    MusicHead()
     {
-        IsSoundOn = mode;
+        IsSound = Convert.ToBoolean(PlayerPrefs.GetInt("sound", 1));
+        IsMusic = Convert.ToBoolean(PlayerPrefs.GetInt("music", 1));
     }
 
-    public void SetMusicMode(bool mode)
+    #region Methods
+
+    public void SetMusic(bool mode)
     {
         if (!mode)
         {
@@ -27,17 +33,13 @@ public class MusicHead
             LevelController.Current.MusicSource.Play();
         }
 
-        IsMusicOn = mode;
+        IsMusic = mode;
     }
-	
-	public bool IsMusicOn = true;
-    public bool IsSoundOn = true;
-	
-	MusicHead()
+    public void SetSound(bool mode)
     {
-        IsSoundOn = Convert.ToBoolean(PlayerPrefs.GetInt("sound", 1));
-        IsMusicOn = Convert.ToBoolean(PlayerPrefs.GetInt("music", 1));
+        IsSound = mode;
     }
-	
+
+    #endregion
 
 }
